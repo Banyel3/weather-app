@@ -3,10 +3,14 @@
 import { useState } from "react"
 import { Search } from "lucide-react"
 
-export default function LocationSearch({ onSearch }) {
+interface LocationSearchProps {
+  onSearch: (location: string) => void
+}
+
+export default function LocationSearch({ onSearch }: LocationSearchProps) {
   const [input, setInput] = useState("")
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (input.trim()) {
       onSearch(input.trim())

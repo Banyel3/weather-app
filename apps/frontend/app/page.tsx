@@ -5,39 +5,27 @@ import LocationSearch from "@/components/location-search"
 import CurrentWeather from "@/components/current-weather"
 import ForecastCard from "@/components/forecast-card"
 import { Cloud, MapPin, Loader } from "lucide-react"
+import { weatherAPI, type CompleteWeatherData, type Location } from "@/lib/api-client"
+import { getCurrentPosition, formatCoordinates } from "@/lib/geolocation"
 
 export default function Home() {
-  const [location, setLocation] = useState("")
-  const [currentWeather, setCurrentWeather] = useState(null)
-  const [forecast, setForecast] = useState([])
+  const [location, setLocation] = useState<Location | null>(null)
+  const [currentWeather, setCurrentWeather] = useState<any>(null)
+  const [forecast, setForecast] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [useGeolocation, setUseGeolocation] = useState(false)
 
-  // Fetch weather data based on location
-  const fetchWeather = async (searchLocation) => {
+  // Fetch weather data based on location name
+  const fetchWeather = async (searchLocation: string) => {
     setLoading(true)
     setError("")
     try {
-      // TODO: Replace with your backend API endpoint
-      // Expected endpoint: POST /api/weather
-      // Body: { location: string, coordinates?: { lat: number, lon: number } }
-      // Response: { current: {...}, forecast: [...] }
-
-      const response = await fetch("/api/weather", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ location: searchLocation }),
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch weather data")
-      }
-
-      const data = await response.json()
+      const data: CompleteWeatherData = await weatherAPI.getCompleteWeather(searchLocation, 7)
+      setLocation(data.location)
       setCurrentWeather(data.current)
       setForecast(data.forecast || [])
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message || "Unable to fetch weather. Please try again.")
       console.error("Weather fetch error:", err)
     } finally {
@@ -46,64 +34,48 @@ export default function Home() {
   }
 
   // Get user's current location
-  const handleGeolocation = () => {
+  const handleGeolocation = async () => {
     setUseGeolocation(true)
     setLoading(true)
     setError("")
 
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords
-          try {
-            // TODO: Replace with your backend API endpoint
-            // Expected endpoint: POST /api/weather
-            // Body: { coordinates: { lat: number, lon: number } }
-            // Response: { current: {...}, forecast: [...] }
-
-            const response = await fetch("/api/weather", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                coordinates: { lat: latitude, lon: longitude },
-              }),
-            })
-
-            if (!response.ok) {
-              throw new Error("Failed to fetch weather data")
-            }
-
-            const data = await response.json()
-            setCurrentWeather(data.current)
-            setForecast(data.forecast || [])
-            setLocation(data.current?.location || "Current Location")
-          } catch (err) {
-            setError("Unable to fetch weather for your location")
-            console.error("Geolocation weather error:", err)
-          } finally {
-            setLoading(false)
-          }
-        },
-        (err) => {
-          setError("Unable to access your location. Please enable location services.")
-          setLoading(false)
-          console.error("Geolocation error:", err)
-        },
-      )
-    } else {
-      setError("Geolocation is not supported by your browser")
+    try {
+      // Get user's position
+      const position = await getCurrentPosition()
+      const { latitude, longitude } = position.coords
+      
+      // Fetch weather data
+      const data = await weatherAPI.getWeatherByCoordinates(latitude, longitude, 7)
+      
+      setCurrentWeather(data.current)
+      setForecast(data.forecast || [])
+      
+      // Set location with formatted coordinates
+      setLocation({
+        name: `Your Location (${formatCoordinates(latitude, longitude)})`,
+        country: "",
+        latitude,
+        longitude,
+        timezone: data.current.timezone,
+      })
+    } catch (err: any) {
+      setError(err.message || "Unable to fetch weather for your location")
+      console.error("Geolocation error:", err)
+      setCurrentWeather(null)
+      setForecast([])
+    } finally {
       setLoading(false)
+      setUseGeolocation(false)
     }
   }
 
-  const handleSearch = (searchLocation) => {
-    setLocation(searchLocation)
+  const handleSearch = (searchLocation: string) => {
     setUseGeolocation(false)
     fetchWeather(searchLocation)
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-4 md:p-8">
+    <main className="min-h-screen bg-linear-to-br from-blue-50 via-blue-100 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -134,6 +106,9 @@ export default function Home() {
               </>
             )}
           </button>
+          <p className="text-xs text-muted-foreground mt-2 text-center">
+            💡 Your browser will ask for location permission
+          </p>
         </div>
 
         {/* Error Message */}
@@ -153,7 +128,12 @@ export default function Home() {
         {/* Current Weather */}
         {currentWeather && !loading && (
           <>
-            <CurrentWeather data={currentWeather} />
+            <CurrentWeather 
+              data={{
+                ...currentWeather,
+                location: location ? `${location.name}, ${location.country}` : "Current Location"
+              }} 
+            />
 
             {/* 5-Day Forecast */}
             {forecast.length > 0 && (

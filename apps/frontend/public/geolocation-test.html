@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geolocation Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            background: #0070f3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0051cc;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 16px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+        .error {
+            background: #fee;
+            color: #c00;
+        }
+        .success {
+            background: #efe;
+            color: #060;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌤️ Geolocation Test</h1>
+    <p>Click the button below to test if geolocation works in your browser:</p>
+    
+    <button onclick="testGeolocation()" id="testBtn">Test Geolocation</button>
+    
+    <div id="result"></div>
+
+    <script>
+        async function testGeolocation() {
+            const btn = document.getElementById('testBtn');
+            const result = document.getElementById('result');
+            
+            btn.disabled = true;
+            btn.textContent = 'Getting location...';
+            result.innerHTML = '';
+            
+            try {
+                // Check if geolocation is supported
+                if (!('geolocation' in navigator)) {
+                    throw new Error('Geolocation is not supported by your browser');
+                }
+                
+                // Get position
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(
+                        resolve,
+                        reject,
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 0
+                        }
+                    );
+                });
+                
+                const { latitude, longitude, accuracy } = position.coords;
+                
+                // Test API connection
+                result.className = 'result';
+                result.innerHTML = `
+                    <h3>✅ Geolocation Working!</h3>
+                    <p><strong>Latitude:</strong> ${latitude.toFixed(6)}</p>
+                    <p><strong>Longitude:</strong> ${longitude.toFixed(6)}</p>
+                    <p><strong>Accuracy:</strong> ${accuracy.toFixed(2)} meters</p>
+                    <p>Testing API connection...</p>
+                `;
+                
+                // Test backend API
+                const apiUrl = 'http://localhost:8000/api/weather/current';
+                const response = await fetch(`${apiUrl}?lat=${latitude}&lon=${longitude}`);
+                
+                if (!response.ok) {
+                    throw new Error(`API returned ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                result.className = 'result success';
+                result.innerHTML = `
+                    <h3>✅ Everything Working!</h3>
+                    <p><strong>Location:</strong> ${latitude.toFixed(6)}, ${longitude.toFixed(6)}</p>
+                    <p><strong>Temperature:</strong> ${data.temperature}°C</p>
+                    <p><strong>Weather:</strong> ${data.weather_description}</p>
+                    <p><strong>Humidity:</strong> ${data.humidity}%</p>
+                    <p><strong>Wind Speed:</strong> ${data.wind_speed} km/h</p>
+                `;
+                
+            } catch (err) {
+                result.className = 'result error';
+                result.innerHTML = `
+                    <h3>❌ Error</h3>
+                    <p>${err.message}</p>
+                    ${err.code ? `<p><strong>Error Code:</strong> ${err.code}</p>` : ''}
+                    <h4>Common Issues:</h4>
+                    <ul>
+                        <li>Location permission denied - Allow location access in browser settings</li>
+                        <li>Using HTTP instead of HTTPS - Geolocation requires HTTPS in production</li>
+                        <li>Backend not running - Make sure Django server is running on port 8000</li>
+                        <li>CORS issues - Check Django CORS settings</li>
+                    </ul>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Test Geolocation';
+            }
+        }
+    </script>
+</body>
+</html>

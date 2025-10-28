@@ -1,0 +1,13 @@
+{
+  "name": "@weather-app/backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "cmd /c dev.bat || bash dev.sh",
+    "build": "echo 'Django backend - no build step needed'",
+    "start": "cmd /c dev.bat || bash dev.sh",
+    "migrate": "cmd /c \"venv\\Scripts\\activate.bat && python manage.py migrate\" || bash -c \"source venv/bin/activate && python manage.py migrate\"",
+    "test": "cmd /c \"venv\\Scripts\\activate.bat && python manage.py test\" || bash -c \"source venv/bin/activate && python manage.py test\"",
+    "check": "cmd /c \"venv\\Scripts\\activate.bat && python manage.py check\" || bash -c \"source venv/bin/activate && python manage.py check\""
+  }
+}
