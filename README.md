@@ -11,10 +11,6 @@ This Turborepo includes the following packages/apps:
 - `frontend`: a [Next.js](https://nextjs.org/) app for the weather application UI
 - `backend`: a [Django](https://www.djangoproject.com/) + [Django Ninja](https://django-ninja.rest-framework.com/) API server
 
-### Packages
-
-- (Add shared packages here as you create them)
-
 ## Tech Stack
 
 - **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS
