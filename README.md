@@ -2,6 +2,11 @@
 
 A Turborepo-powered monorepo for the Weather App with Next.js frontend and Django backend.
 
+## 🚀 Live Deployment
+
+- **Frontend**: Deployed on [Vercel](https://vercel.com)
+- **Backend**: Deployed on [Render](https://render.com)
+
 ## What's inside?
 
 This Turborepo includes the following packages/apps:
