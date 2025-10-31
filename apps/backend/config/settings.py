@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-waigu96n_g(@p2!x)catc#z(^@wutybe^(b+m6*56a_)pkhaa2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'https://weather-app-api-tvjt.onrender.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'weather-app-api-tvjt.onrender.com']
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
