@@ -30,11 +30,15 @@ This Turborepo includes the following packages/apps:
 
 #### 1. Install Node dependencies from the root:
 
+This will install Turborepo and all frontend dependencies:
+
 ```bash
 npm install
 ```
 
 #### 2. Set up Python backend:
+
+Navigate to the backend directory and create a virtual environment:
 
 ```bash
 cd apps/backend
@@ -43,8 +47,15 @@ cd apps/backend
 python -m venv venv
 
 # Activate virtual environment
-# Windows:
-.\venv\Scripts\activate
+# Windows PowerShell:
+.\venv\Scripts\Activate.ps1
+
+# Windows Command Prompt (cmd):
+.\venv\Scripts\activate.bat
+
+# Windows Git Bash:
+source venv/Scripts/activate
+
 # Mac/Linux:
 source venv/bin/activate
 
@@ -68,19 +79,14 @@ NEXT_PUBLIC_API_URL=http://localhost:8000/api/weather
 
 **Backend** (`apps/backend/.env`):
 
-```env
-SECRET_KEY=your-secret-key-here
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
-CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
-```
+> **Note:** If you need to run this application, please contact me at [cornelio.vaniel38@gmail.com] and I'll provide you with the required `.env` files.
 
 ### Development
 
 To develop all apps simultaneously, run from the root:
 
 ```bash
-npm run dev
+turbo run dev
 ```
 
 This will start:
@@ -92,41 +98,8 @@ You can also run apps individually:
 
 ```bash
 # Run only frontend
-npm run dev --filter=@weather-app/frontend
+turbo run dev --filter=frontend
 
 # Run only backend
-npm run dev --filter=@weather-app/backend
+turbo run dev --filter=backend
 ```
-
-### Build
-
-To build all apps and packages:
-
-```bash
-npm run build
-```
-
-### Other Commands
-
-```bash
-# Lint all apps
-npm run lint
-
-# Run backend migrations
-npm run migrate --filter=@weather-app/backend
-
-# Run backend tests
-npm run test --filter=@weather-app/backend
-
-# Clean all build artifacts
-npm run clean
-```
-
-## Useful Links
-
-Learn more about Turborepo:
-
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
