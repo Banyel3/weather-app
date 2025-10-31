@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'https://weather-app-api-tvjt.onrende
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    'https://weather-app-frontend-lac.vercel.app',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
